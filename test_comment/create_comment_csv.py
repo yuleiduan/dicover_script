@@ -3,9 +3,9 @@
 # _*_ coding:utf-8 _*_
 import requests
 import copy
-from comment_script.data.time_class import *
+from data.time_class import *
 import csv
-from comment_script.data.comment_test import *
+from data.comment_test import *
 
 
 class Threadgroup_1(timeclass):

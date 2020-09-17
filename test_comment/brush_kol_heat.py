@@ -9,9 +9,9 @@ from time import sleep
 
 from pip._vendor.retrying import retry
 
-from comment_script.test_comment.page_view import *
+from test_comment.page_view import *
 import math
-from comment_script.data.time_class import *
+from data.time_class import *
 from random import random
 
 
