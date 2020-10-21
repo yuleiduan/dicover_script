@@ -1,7 +1,7 @@
 # !/opt/python37/bin/python3
 # !/usr/bin/env python
 # _*_ coding:utf-8 _*_
-from time import sleep
+import time
 from pip._vendor.retrying import retry
 
 import requests
@@ -58,7 +58,7 @@ class Threadgroup_1(timeclass):
         a = re.sub(r'|\s|]t|\ufeff|\u3000', "", s)
         pattern = re.compile(r'\\t|\t')
         a = re.sub(pattern, ' ', a)
-        c = re.sub(r'。|\.|,|;|；|!|！|？|\?|', "，", a)
+        c = re.sub(r'。|\.|,|;|；|!|！', "，", a)
         g = c.split("，")
         for i in g:
             if len(i) < 10 or len(i) > 100:
@@ -84,7 +84,7 @@ class Threadgroup_1(timeclass):
         # -------------------
 
         if int(vc_1) > int(self.item["cc"]) and int(self.item["vc"]) < 20000:
-            cc_add = math.ceil((int(vc_1) - int(self.item["cc"])) / 2)   # 控制数量
+            cc_add = math.ceil((int(vc_1) - int(self.item["cc"])) / 2)  # 控制数量
             b = int(int(self.item["vc"]) / 100)  # 得道百位数及以上
             q = int(int(self.item["vc"]) % 100 / 10)  # 十位
             s = int(int(self.item["vc"]) % 1000 % 10)  # 个位
@@ -105,7 +105,8 @@ class Threadgroup_1(timeclass):
 
     def kol_user(self, cc, shuijunIDlist):
         # 用大咖id获取大咖的名字
-        request = requests.get(self.url + '/luka/api/user/kol_detail?kolId=' + self.item["kolUser"])
+        request = requests.get(self.url + '/luka/api/user/kol_detail?kolId=' + self.item["kolUser"],
+                               headers=self.header)
         if request.status_code != 200:
             print('kol_user:' + "请求失败")
             print(request.text)
@@ -201,11 +202,11 @@ class Threadgroup_1(timeclass):
                 for i in range(len(a)):
                     ids.append(a[i]["id"])
                     sd.append(a[i]["id"])
-                    sleep(1)
+                    time.sleep(1)
                 print(sd)
             except Exception as e:
                 print("异常", e)
-                sleep(3)
+                time.sleep(3)
                 request = requests.get(self.url + "/luka/api/user/kol/discover_list", headers=self.header,
                                        params={"kolId": id, "pageNo": 0, "limit": 100})
                 if request.status_code != 200:
@@ -217,7 +218,7 @@ class Threadgroup_1(timeclass):
                 for i in range(len(a)):
                     ids.append(a[i]["id"])
                     sd.append(a[i]["id"])
-                    sleep(1.2)
+                    time.sleep(1.2)
                 print(sd)
                 continue
         print(len(ids), ids)
@@ -240,38 +241,22 @@ class Threadgroup_1(timeclass):
         return c
 
 
-if __name__ == "__main__":
-    # 发现执行id列表
-    # discoverID_list = ['226', '306', '273', '228', '227', '36', '35', '34', '33', '196', '12', '11', '6', '5', '302',
-    #                    '125', '2', '1', '19', '20', '27', '26', '305', '304', '303', '21', '22', '134', '129', '16',
-    #                    '15', '17', '18', '130', '197', '8', '7', '313', '309', '308', '198', '10', '9', '13', '14',
-    #                    '23', '4', '3', '312', '311', '310', '31', '30', '24', '25', '291', '41', '290', '43', '297',
-    #                    '42', '44', '301', '47', '289', '46', '296', '295', '45', '48', '53', '51', '265', '52', '294',
-    #                    '50', '299', '298', '230', '229', '54', '244', '243', '242', '60', '59', '58', '63', '62', '286',
-    #                    '57', '56', '61', '55', '300', '64', '207', '65', '222', '66', '67', '221', '220', '169', '68',
-    #                    '69', '219', '225', '224', '218', '174', '70', '29', '28', '162', '71', '163', '72', '206',
-    #                    '205', '208', '107', '40', '39', '37', '73', '74', '75', '76', '77', '78', '79', '80', '293',
-    #                    '81', '82', '83', '84', '85', '86', '87', '88', '238', '237', '166', '89', '90', '241', '240',
-    #                    '239', '170', '91', '109', '108', '92', '111', '112', '263', '158', '110', '165', '93', '94',
-    #                    '95', '96', '97', '98', '99', '100', '106', '101', '102', '103', '104', '113', '307', '217',
-    #                    '105', '131', '128', '127', '126', '124', '123', '122', '121', '120', '119', '118', '117', '116',
-    #                    '115']
-
-    user_number = 1000
-    file = "../Comment_csv/评论次数5.csv"
-    th = Threadgroup_1(None, user_number, file)
-    th.git_Cookie()
-    # 所有大咖分类列表
-    kol_id_list = th.kol_list()
-    discoverID_list = th.discover_id(kol_id_list)
-    cc = th.kol_typelist()
-    shuijunIDlist = th.water_army()
-    for i in discoverID_list:
-        time.sleep(1)
-        th = Threadgroup_1(i, user_number, file)
-        th.git_Cookie()
-        th.discover_page(cc, shuijunIDlist)
-        print(th.item)
-        print("")
-    th.sort_csv()
-    time.sleep(10)
+# if __name__ == "__main__":
+#     # 发现执行id列表
+#     # discoverID_list = []
+#     user_number = 1000
+#     file = "../Comment_csv/评论"+str(timeclass().current()[0])+".csv"
+#     th = Threadgroup_1(None, user_number, file)
+#     th.git_Cookie()
+#     # 所有大咖分类列表
+#     kol_id_list = th.kol_list()
+#     discoverID_list = th.discover_id(kol_id_list)
+#     cc = th.kol_typelist()
+#     shuijunIDlist = th.water_army()
+#     for i in discoverID_list:
+#         time.sleep(1)
+#         th = Threadgroup_1(i, user_number, file)
+#         th.git_Cookie()
+#         th.discover_page(cc, shuijunIDlist)
+#         print(th.item)
+#     th.sort_csv()

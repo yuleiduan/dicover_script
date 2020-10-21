@@ -10,6 +10,8 @@ from time import sleep
 
 from pip._vendor.retrying import retry
 
+from data.time_class import timeclass
+
 
 class threadgroup_2:
     def __init__(self, t_id, t_user, text, sleep_s):
@@ -44,23 +46,3 @@ class threadgroup_2:
         print(self.t_sleep)
         sleep(self.t_sleep)
 
-
-
-def a():
-    data = csv.reader(open('../Comment_csv/评论次数7.csv', encoding='utf-8'), delimiter=',')
-    sortedlist = sorted(data, key=lambda x: int(x[3]))
-    return sortedlist
-
-
-if __name__ == "__main__":
-    b = a()
-    for i in range(len(b)):
-        if int(i - 1) > 0:
-            a = threadgroup_2(b[i][0], b[i][1], b[i][2], int(b[i][3]) - int(b[i - 1][3]))
-            a.git_Cookie()
-            a.discover_commnt()
-        else:
-            a = threadgroup_2(b[i][0], b[i][1], b[i][2], int(b[i][3]))
-            a.git_Cookie()
-            a.discover_commnt()
-        sleep(0.2)

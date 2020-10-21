@@ -11,7 +11,7 @@ import math
 
 class timeclass:
     def __init__(self):
-        self.start = self.current()
+        self.start = self.current()[1]
         self.end = self.timeTomorrow()
 
     def strTimeProp(self, prop, frmt):
@@ -38,11 +38,13 @@ class timeclass:
 
     # 随机时间减当前时间转成秒
     def latency_time(self):
-        return int(self.itemMsec(self.randomDate()) - self.itemMsec(self.start)) + self.number(172800)
+        return int(self.itemMsec(self.randomDate()) - self.itemMsec(self.start)) + self.number(18030)
 
     # 当前时间
     def current(self):
-        return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        sky = time.strftime("%Y-%m-%d", time.localtime())
+        second = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+        return [sky, second]
 
     # 时间戳秒
     def itemMsec(self, timestr):
@@ -80,9 +82,9 @@ class timeclass:
             price = "error: 输入类型或长度错误"
         return price
 
-# if __name__ == "__main__":
+if __name__ == "__main__":
 #     # 类赋值 当前时间和明天时间
-#     variable = timeclass()
+    variable = timeclass()
 #     print(str(variable.latency_time()))
 #     # 随机时间
 #     random_time = variable.randomDate()
