@@ -8,11 +8,14 @@ import copy
 from time import sleep
 
 from pip._vendor.retrying import retry
-
-from test_comment.page_view import *
 import math
 from data.time_class import *
 from random import random
+
+
+# 随机
+def stochastic(lower, upper):
+    return int(math.floor(random() * (upper - lower) + lower))
 
 
 class PV:

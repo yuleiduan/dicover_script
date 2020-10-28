@@ -82,6 +82,8 @@ class timeclass:
             price = "error: 输入类型或长度错误"
         return price
 
+
+
 if __name__ == "__main__":
 #     # 类赋值 当前时间和明天时间
     variable = timeclass()
