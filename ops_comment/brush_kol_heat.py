@@ -3,12 +3,10 @@
 # _*_ coding:utf-8 _*_
 
 import requests
-import re
 import copy
 from time import sleep
 
 from pip._vendor.retrying import retry
-import math
 from data.time_class import *
 from random import random
 
@@ -25,27 +23,19 @@ class PV:
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) '
                           'Chrome/72.0.3626.109 Safari/537.36'}
         self.url = "http://www.pandabox.top"
-        # self.test_url = "http://test.pandacase.cn"
-        # self.test_uid = 1258571561642934272
-        # self.test_password = "k4B5Xy"
-        self.uid = 1161294774320484352
-        self.password = "WIQpPi"
-
-    def stochastic(self, lower, upper):
-        return int(math.floor(random() * (upper - lower) + lower))
 
     @retry(stop_max_attempt_number=3)
     def git_Cookie(self):
         # 获取Cookie
         request = requests.get(self.url + "/luka/api/user/login", headers=self.header,
-                               params={"uid": self.uid, "pswd": self.password})
+                               params={"uid": 1161294774320484352, "pswd": "WIQpPi"})
         if request.status_code != 200:
             print(request.text)
             print('git_Cookie:' + "请求失败")
             return
-        b = request.headers
-        self.header["luka-session"] = b["luka-session"]
-        self.header["Set-Cookie"] = b["Set-Cookie"]
+        response = request.headers
+        self.header["luka-session"] = response["luka-session"]
+        self.header["Set-Cookie"] = response["Set-Cookie"]
         sleep(0.3)
         return copy.deepcopy(self.header)
 
@@ -112,7 +102,7 @@ class PV:
             return
         em = request.json()
         self.item["ss"] = em["ss"]
-        if em["ss"] == False:
+        if not em["ss"]:
             return self.item
         self.item["vc"] = em['dt']['vc']
         self.item["pt"] = em['dt']['pt']
@@ -190,7 +180,4 @@ if __name__ == '__main__':
     discover_id_list = run.discover_id(kol_id_list)
     for i in range(len(discover_id_list)):
         run.discover_pages(discover_id_list[i])
-    # a = run.stochastic(1900, 2400)
-    # print(a)
-    # for i in range(a):
-    #     run.discover_page(291)
+
