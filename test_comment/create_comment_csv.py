@@ -105,9 +105,9 @@ class Threadgroup_1(timeclass):
             kol_type[i] = request.text
         return kol_type
 
-    def kol_tpye(self, cc, shuijunIDlist):  # -----------------------------------
+    def kol_tpye(self, cc, shuijunIDlist):
+        """获取大咖在那个类型下"""
         for s in range(self.item["commentID_number"]):
-            # 获取大咖在那个type下
             kol_list_type = []
             for i in range(1, len(cc)):
                 dd = re.findall(self.item["kol_name"], cc[i])
@@ -153,7 +153,7 @@ class Threadgroup_1(timeclass):
         print("评论id：" + str(self.id) + " 评语：" + str(text_comments) + " 等待时间：" + str(random_time))
 
     def sort_csv(self):
-        # 按照等待时间排序文本的时间从小到大
+        """按照等待时间排序文本的时间从小到大"""
         data = csv.reader(open(self.file, encoding='utf-8'), delimiter=',')
         sortedlist = sorted(data, key=lambda x: int(x[3]), reverse=False)
         with open(self.file, "w", newline='', encoding='utf-8') as f:

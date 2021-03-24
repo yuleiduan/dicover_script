@@ -37,9 +37,6 @@ class threadgroup_2:
         data_json = json.dumps({"rid": self.id, "ct": self.text})
         ss = requests.post(self.url + '/luka/api/water/comment/save_water_comment', headers=self.header,
                            data=data_json)
-        # print(ss.text)
-        # print(ss.headers)
-        # print(self.t_sleep)
         sleep(2)
 
 

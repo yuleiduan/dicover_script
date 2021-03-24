@@ -1,12 +1,12 @@
 # !/opt/python37/bin/python3
 # !/usr/bin/env python
 # _*_ coding:utf-8 _*_
+import math
 import random
 import time
 from datetime import datetime
 import datetime as b
 from jieba import xrange
-import math
 
 
 class timeclass:
@@ -83,10 +83,8 @@ class timeclass:
         return price
 
 
-
-if __name__ == "__main__":
-#     # 类赋值 当前时间和明天时间
-    variable = timeclass()
+# if __name__ == "__main__":
+#     variable = timeclass()
 #     print(str(variable.latency_time()))
 #     # 随机时间
 #     random_time = variable.randomDate()
@@ -94,7 +92,6 @@ if __name__ == "__main__":
 #     print(variable.itemMsec(random_time))
 #     print(variable.start)
 #     print(math.floor(round((variable.itemMsec(variable.start)-variable.itemMsec("2020-07-31 00:39:16"))/3600/24, 0)))
-#
 #     # 时间戳毫秒  可以用来做等待时间
 #     current_ss = variable.itemMsec(random_time) - variable.itemMsec(variable.start)
 #     print(current_ss)

@@ -1,6 +1,7 @@
 # !/opt/python37/bin/python3
 # !/usr/bin/env python
 # _*_ coding:utf-8 _*_
+import math
 
 import requests
 import copy
@@ -11,38 +12,56 @@ from data.time_class import *
 from random import random
 
 
-# 随机
 def stochastic(lower, upper):
+    """两数之间随机数"""
     return int(math.floor(random() * (upper - lower) + lower))
 
 
 class PV:
     def __init__(self):
         self.item = {}
+        # self.url = "http://www.pandabox.top"
+        self.url = "http://test.pandacase.cn"
         self.header = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) '
                           'Chrome/72.0.3626.109 Safari/537.36'}
-        self.url = "http://www.pandabox.top"
 
     @retry(stop_max_attempt_number=3)
     def git_Cookie(self):
-        # 获取Cookie
-        request = requests.get(self.url + "/luka/api/user/login", headers=self.header,
-                               params={"uid": 1161294774320484352, "pswd": "WIQpPi"})
+        """获取Cookie"""
+        # request = requests.get(self.url + "/luka/api/user/login", headers=self.header, params={"uid": 1161294774320484352, "pswd": "WIQpPi"})
+        request = requests.get(self.url + "/luka/api/user/login", headers=self.header, params={"uid": 1331143870437834752, "pswd": "ahB3pS"})
         if request.status_code != 200:
-            print(request.text)
-            print('git_Cookie:' + "请求失败")
+            print('git_Cookie:' + "请求失败", request.text)
             return
         response = request.headers
         self.header["luka-session"] = response["luka-session"]
         self.header["Set-Cookie"] = response["Set-Cookie"]
-        sleep(0.3)
         return copy.deepcopy(self.header)
 
-    # 使用大咖id获取所有发现id
+    @retry(stop_max_attempt_number=3)
+    def kol_list(self):
+        """获取全部列表的大咖id
+        :return: list：所有大咖id加上了官方大咖"""
+        sleep(0.3)
+        request = requests.get(self.url + "/luka/api/user/kolIdAndNamesByType", headers=self.header, params={"typeId": 0})
+        if request.status_code != 200:
+            print("出错")
+            return
+        response = request.json()["dt"]
+        print("所有大咖人数%s" % len(response))
+        kol_id_list = ['7003946']
+        for kol_element in range(len(response)):
+            kol_id_list.append(response[kol_element]["uid"])
+        return kol_id_list
+
     @retry(stop_max_attempt_number=3)
     def discover_id(self, kol_id):
-        ids = []
+        """使用大咖id获取所有发现id
+        :param kol_id: 大咖id
+        :return: 返回大咖名下的所有发现文章id
+        """
+        cid_list = []
         for id in kol_id:
             try:
                 sleep(1)
@@ -51,133 +70,93 @@ class PV:
                 if request.status_code != 200:
                     print("discover_page失败", request.text)
                     continue
-                a = request.json()['dt']
-                sd = []
-                for i in range(len(a)):
-                    ids.append(a[i]["id"])
-                    sd.append(a[i]["id"])
-                print(sd)
+                response = request.json()['dt']
+                for dt in range(len(response)):
+                    cid_list.append(response[dt]["id"])
             except Exception as e:
                 print(e)
-        print(ids)
-        return ids
+        print("文章数量%s\n文章列表%s" % (len(cid_list),cid_list))
+        return cid_list
 
-    # 获取全部列表的大咖id
     @retry(stop_max_attempt_number=3)
-    def kol_list(self):
-        sleep(0.3)
-        request = requests.get(self.url + "/luka/api/user/kolIdAndNamesByType", headers=self.header,
-                               params={"typeId": 0})
-        if request.status_code != 200:
-            print("出错")
-            return
-        r = request.json()["dt"]
-        print(len(r))
-        c = []
-        for i in range(len(r)):
-            c.append(r[i]["uid"])
-        c.append('7003946')
-        return c
-
     def discover_page(self, discover_id):
-        try:
-            request = requests.get(self.url + "/luka/api/user/kol/discover_detail", headers=self.header,
-                                   params={"discoverId": discover_id, "on_shelf": "true"})
-            if request.status_code != 200:
-                print('discover_page:' + "----------请求失败ID:", discover_id)
-                if request.json()["em"] == "微信授权URL":
-                    PV.git_Cookie(self)
-                return
+        """发现页面,获取页面的评论数浏览量以及发布时间"""
+        request = requests.get(self.url + "/luka/api/user/kol/discover_detail", headers=self.header,
+                               params={"discoverId": discover_id, "on_shelf": "true"})
+        if request.status_code != 200:
+            print('discover_page:' + "请求失败ID:", discover_id)
+            if request.json()["em"] == "微信授权URL":
+                self.git_Cookie()
+        else:
             sleep(0.3)
-        except Exception as e:
-            print(e)
-            sleep(2)
+            return request
 
     @retry(stop_max_attempt_number=3)
-    def discover_pages(self, c_id):
-        request = requests.get(self.url + "/luka/api/user/kol/discover_detail", headers=self.header,
-                               params={"discoverId": c_id, "on_shelf": "true"})
-        if request.status_code != 200:
-            print('discover_page:' + "----------请求失败ID:", c_id)
-            return
-        em = request.json()
-        self.item["ss"] = em["ss"]
-        if not em["ss"]:
+    def page_data(self, c_id) -> dict:
+        """
+        :param c_id: 发现文章 id
+        :return: 文章的vc：浏览数 pt：发布日期"""
+        response = self.discover_page(c_id).json()
+        if not response["ss"]:
             return self.item
-        self.item["vc"] = em['dt']['vc']
-        self.item["pt"] = em['dt']['pt']
-        run = timeclass()
-        sky = math.floor(round((run.itemMsec(run.start) - run.itemMsec(self.item["pt"])) / 3600 / 24, 0))
-        self.a(c_id, sky, self.item["vc"])
-        return self.item
-
-    def browsetype_1(self, id_list, s):
-        if s > 300:
-            return
-        ci = stochastic(100, 500)
-        print(ci)
-        print("第一天刷取%s次，id%s" % (ci, id_list))
-        for l in range(ci):
-            try:
-                self.discover_page(id_list)
-            except:
-                self.discover_page(id_list)
-            continue
-
-    def browsetype_2(self, id_list, s):
-        x = 0
-        if s < 200:
-            x = 200 - s
-        ci = stochastic(100, 600) + x
-        print("第二天刷取%s次，id%s" % (ci, id_list))
-        for l in range(ci):
-            try:
-                self.discover_page(id_list)
-            except:
-                self.discover_page(id_list)
-            continue
-
-    def browsetype_3(self, id_list, s):
-        x = 0
-        if s < 400:
-            x = 400 - s
-        ci = stochastic(100, 400) + x
-        print("第三天刷取%s次，id%s" % (ci, id_list))
-        for l in range(ci):
-            try:
-                self.discover_page(id_list)
-            except:
-                self.discover_page(id_list)
-            continue
-
-    def browsetype_4(self, id_list):
-        ci = stochastic(10, 120)
-        print("超过三天刷取%s次，id%s" % (ci, id_list))
-        for l in range(ci):
-            try:
-                self.discover_page(id_list)
-            except:
-                self.discover_page(id_list)
-            continue
-
-    def a(self, d_type, sky, vc):
-        if sky == 0 or vc < 200:
-            self.browsetype_1(d_type, vc)
-        elif sky == 1 or vc < 400:
-            self.browsetype_2(d_type, vc)
-        elif sky == 2 or vc < 600:
-            self.browsetype_3(d_type, vc)
-        elif sky > 2:
-            self.browsetype_4(d_type)
         else:
-            print("--文章未到发布日期")
+            self.item["vc"] = response['dt']['vc']
+            self.item["pt"] = response['dt']['pt']
+            # 获取已发布文章天数
+            times = timeclass()
+            sky = math.floor(round((times.itemMsec(times.start) - times.itemMsec(self.item["pt"])) / 3600 / 24, 0))
+            if sky >= 100:
+                if self.item["vc"] < 2500:
+                    Random_number = stochastic(5, 120)
+                    self.brush_number(Random_number, c_id)
+                else:
+                    print("文章%s天数发布日期已%s天，浏览量%s" % (c_id, sky, self.item["vc"]))
+            else:
+                self.run(c_id, sky, self.item["vc"])
+            return self.item
+
+    def brush_number(self, Random_number, cid):
+        for i in range(Random_number):
+            try:
+                self.discover_page(cid)
+            except Exception as e:
+                print("请求错误%s" % e)
+                self.discover_page(cid)
+            continue
+
+    def run(self, cid, sky, vc):
+        """
+        :param cid: 发现文章id
+        :param sky: 文章已发布天数
+        :param vc: 发现浏览量
+        :return: None"""
+        if sky == 0 or vc < 200:
+            if vc > 300:
+                print("%s数量达标" % cid)
+            else:
+                Random_number = stochastic(100, 500)
+                print("第一指标刷取%s次，id%s" % (Random_number, cid))
+                self.brush_number(Random_number, cid)
+        elif sky == 1 or vc < 400:
+            Random_number = stochastic(100, 600) + 200 - vc if vc < 200 else 0
+            print("第二指标s次，id%s" % (Random_number, cid))
+            self.brush_number(Random_number, cid)
+        elif sky == 2 or vc < 600:
+            Random_number = stochastic(100, 600) + 200 - vc if vc < 400 else 0
+            print("第三指标刷取%s次，id%s" % (Random_number, cid))
+            self.brush_number(Random_number, cid)
+        elif sky > 2:
+            Random_number = stochastic(5, 120)
+            print("超过三天刷取%s次，id%s" % (Random_number, cid))
+            self.brush_number(Random_number, cid)
+        else:
+            print("文章未到发布日期")
 
 
 if __name__ == '__main__':
     run = PV()
     run.git_Cookie()
-    kol_id_list = run.kol_list()
-    discover_id_list = run.discover_id(kol_id_list)
+    kol_ids = run.kol_list()
+    discover_id_list = run.discover_id(kol_ids)
     for i in range(len(discover_id_list)):
-        run.discover_pages(discover_id_list[i])
-
+        run.page_data(discover_id_list[i])
