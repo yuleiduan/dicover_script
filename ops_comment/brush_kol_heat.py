@@ -21,8 +21,7 @@ def stochastic(lower, upper):
 class PV:
     def __init__(self):
         self.item = {}
-        # self.url = "http://www.pandabox.top"
-        self.url = "http://test.pandacase.cn"
+        self.url = "http://www.pandabox.top"
         self.header = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) '
                           'Chrome/72.0.3626.109 Safari/537.36'}
@@ -30,8 +29,7 @@ class PV:
     @retry(stop_max_attempt_number=3)
     def git_Cookie(self):
         """获取Cookie"""
-        # request = requests.get(self.url + "/luka/api/user/login", headers=self.header, params={"uid": 1161294774320484352, "pswd": "WIQpPi"})
-        request = requests.get(self.url + "/luka/api/user/login", headers=self.header, params={"uid": 1331143870437834752, "pswd": "ahB3pS"})
+        request = requests.get(self.url + "/luka/api/user/login", headers=self.header, params={"uid": 1161294774320484352, "pswd": "WIQpPi"})
         if request.status_code != 200:
             print('git_Cookie:' + "请求失败", request.text)
             return
