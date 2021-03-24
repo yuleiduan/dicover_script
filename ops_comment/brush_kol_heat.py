@@ -138,7 +138,7 @@ class PV:
                 self.brush_number(Random_number, cid)
         elif sky == 1 or vc < 400:
             Random_number = stochastic(100, 600) + 200 - vc if vc < 200 else 0
-            print("第二指标s次，id%s" % (Random_number, cid))
+            print("第二指标%s次，id%s" % (Random_number, cid))
             self.brush_number(Random_number, cid)
         elif sky == 2 or vc < 600:
             Random_number = stochastic(100, 600) + 200 - vc if vc < 400 else 0
